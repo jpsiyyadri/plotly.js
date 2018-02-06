@@ -232,7 +232,7 @@ function _hover(gd, evt, subplot, noHoverEvent) {
         trace,
         subplotId,
         subploti,
-        mode,
+        hovermode2,
         xval,
         yval,
         pointData,
@@ -338,7 +338,12 @@ function _hover(gd, evt, subplot, noHoverEvent) {
         subploti = subplots.indexOf(subplotId);
 
         // within one trace mode can sometimes be overridden
-        mode = hovermode;
+        hovermode2 = hovermode;
+
+        // hovermode 'x' and 'y on non-cartesian axes behaves like 'closest'
+        if(!plots[subplotId] && (hovermode === 'x' || hovermode === 'y')) {
+            hovermode2 = 'closest';
+        }
 
         // container for new point, also used to pass info into module.hoverPoints
         pointData = {
@@ -371,21 +376,21 @@ function _hover(gd, evt, subplot, noHoverEvent) {
 
         // for a highlighting array, figure out what
         // we're searching for with this element
-        if(mode === 'array') {
+        if(hovermode2 === 'array') {
             var selection = evt[curvenum];
             if('pointNumber' in selection) {
                 pointData.index = selection.pointNumber;
-                mode = 'closest';
+                hovermode2 = 'closest';
             }
             else {
-                mode = '';
+                hovermode2 = '';
                 if('xval' in selection) {
                     xval = selection.xval;
-                    mode = 'x';
+                    hovermode2 = 'x';
                 }
                 if('yval' in selection) {
                     yval = selection.yval;
-                    mode = mode ? 'closest' : 'y';
+                    hovermode2 = hovermode2 ? 'closest' : 'y';
                 }
             }
         }
@@ -397,13 +402,13 @@ function _hover(gd, evt, subplot, noHoverEvent) {
         // Now if there is range to look in, find the points to hover.
         if(hoverdistance !== 0) {
             if(trace._module && trace._module.hoverPoints) {
-                var newPoints = trace._module.hoverPoints(pointData, xval, yval, mode, fullLayout._hoverlayer);
+                var newPoints = trace._module.hoverPoints(pointData, xval, yval, hovermode2, fullLayout._hoverlayer);
                 if(newPoints) {
                     var newPoint;
                     for(var newPointNum = 0; newPointNum < newPoints.length; newPointNum++) {
                         newPoint = newPoints[newPointNum];
                         if(isNumeric(newPoint.x0) && isNumeric(newPoint.y0)) {
-                            hoverData.push(cleanPoint(newPoint, hovermode));
+                            hoverData.push(cleanPoint(newPoint, hovermode2));
                         }
                     }
                 }
@@ -415,7 +420,7 @@ function _hover(gd, evt, subplot, noHoverEvent) {
 
         // in closest mode, remove any existing (farther) points
         // and don't look any farther than this latest point (or points, if boxes)
-        if(hovermode === 'closest' && hoverData.length > closedataPreviousLength) {
+        if(hovermode2 === 'closest' && hoverData.length > closedataPreviousLength) {
             hoverData.splice(0, closedataPreviousLength);
             distance = hoverData[0].distance;
         }
@@ -571,7 +576,7 @@ function _hover(gd, evt, subplot, noHoverEvent) {
 
     // if there's more than one horz bar trace,
     // rotate the labels so they don't overlap
-    var rotateLabels = hovermode === 'y' && searchData.length > 1;
+    var rotateLabels = hovermode2 === 'y' && searchData.length > 1;
 
     var bgColor = Color.combine(
         fullLayout.plot_bgcolor || Color.background,
@@ -579,7 +584,7 @@ function _hover(gd, evt, subplot, noHoverEvent) {
     );
 
     var labelOpts = {
-        hovermode: hovermode,
+        hovermode: hovermode2,
         rotateLabels: rotateLabels,
         bgColor: bgColor,
         container: fullLayout._hoverlayer,
