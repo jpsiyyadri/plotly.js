@@ -119,6 +119,9 @@ proto.createMap = function(calcData, fullLayout, resolve, reject) {
     var controlContainer = self.div.getElementsByClassName(className)[0];
     self.div.removeChild(controlContainer);
 
+    // TODO have to clear 'Missing CSS in JS' message
+    // or maybe include in the plotly css (this might fix the hover offset issue)
+
     // make sure canvas does not inherit left and top css
     map._canvas.style.left = '0px';
     map._canvas.style.top = '0px';

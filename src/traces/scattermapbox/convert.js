@@ -149,26 +149,11 @@ function makeCircleOpts(calcTrace) {
     var arrayColor = Array.isArray(marker.color);
     var arraySize = Array.isArray(marker.size);
     var arrayOpacity = Array.isArray(marker.opacity);
-    var opts = {};
     var i;
 
     function addTraceOpacity(o) { return trace.opacity * o; }
 
     function size2radius(s) { return s / 2; }
-
-    // not quite right here!!
-
-    opts.mcc = selectedpoints || arrayColor ?
-        {type: 'identity', property: 'mcc'} :
-        marker.color;
-
-    opts.mrc = selectedpoints || arraySize ?
-        {type: 'identity', property: 'mrc'} :
-        size2radius(marker.size);
-
-    opts.mo = selectedpoints || arrayOpacity ?
-        {type: 'identity', property: 'mo'} :
-        addTraceOpacity(marker.opacity);
 
     var colorFn;
     if(arrayColor) {
@@ -213,8 +198,9 @@ function makeCircleOpts(calcTrace) {
         });
     }
 
+    var fns;
     if(selectedpoints) {
-        var fns = Drawing.makeSelectedPointStyleFns(trace);
+        fns = Drawing.makeSelectedPointStyleFns(trace);
 
         for(i = 0; i < features.length; i++) {
             var d = features[i].properties;
@@ -234,9 +220,18 @@ function makeCircleOpts(calcTrace) {
         }
     }
 
-    opts.geojson = {type: 'FeatureCollection', features: features};
-
-    return opts;
+    return {
+        geojson: {type: 'FeatureCollection', features: features},
+        mcc: arrayColor || (fns && fns.colorFn) ?
+            {type: 'identity', property: 'mcc'} :
+            marker.color,
+        mrc: arraySize || (fns && fns.sizeFn) ?
+            {type: 'identity', property: 'mrc'} :
+            size2radius(marker.size),
+        mo: arrayOpacity || selectedpoints ?
+            {type: 'identity', property: 'mo'} :
+            addTraceOpacity(marker.opacity)
+    };
 }
 
 function makeSymbolGeoJSON(calcTrace) {
