@@ -19,6 +19,10 @@ var constants = require('./constants');
 
 var MAPBOX = 'mapbox';
 
+for(var k in constants.styleRules) {
+    Lib.addStyleRule('.mapboxgl-' + k, constants.styleRules[k]);
+}
+
 exports.name = MAPBOX;
 
 exports.attr = 'subplot';

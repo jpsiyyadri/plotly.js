@@ -112,6 +112,10 @@ describe('scattermapbox defaults', function() {
     });
 });
 
+
+// TODO 
+// update those (no more hacky hash!!!)
+// and add mucho selected/unselected tests!
 describe('scattermapbox convert', function() {
     'use strict';
 
@@ -423,11 +427,10 @@ describe('scattermapbox convert', function() {
     }
 });
 
-describe('@noCI scattermapbox hover', function() {
+fdescribe('@noCI scattermapbox hover', function() {
     'use strict';
 
     var hoverPoints = ScatterMapbox.hoverPoints;
-
     var gd;
 
     beforeAll(function(done) {
@@ -439,9 +442,9 @@ describe('@noCI scattermapbox hover', function() {
 
         var data = [{
             type: 'scattermapbox',
-            lon: [10, 20, 30],
-            lat: [10, 20, 30],
-            text: ['A', 'B', 'C']
+            lon: [10, 20, 30, 300],
+            lat: [10, 20, 30, 10],
+            text: ['A', 'B', 'C', 'D']
         }];
 
         Plotly.plot(gd, data, { autosize: true }).then(done);
@@ -453,16 +456,17 @@ describe('@noCI scattermapbox hover', function() {
     });
 
     function getPointData(gd) {
-        var cd = gd.calcdata,
-            mapbox = gd._fullLayout.mapbox._subplot;
+        var cd = gd.calcdata;
+        var subplot = gd._fullLayout.mapbox._subplot;
 
         return {
             index: false,
             distance: 20,
             cd: cd[0],
             trace: cd[0][0].trace,
-            xa: mapbox.xaxis,
-            ya: mapbox.yaxis
+            subplot: subplot,
+            xa: subplot.xaxis,
+            ya: subplot.yaxis
         };
     }
 
@@ -477,6 +481,19 @@ describe('@noCI scattermapbox hover', function() {
             297.444, 299.444, 105.410, 107.410
         ]);
         expect(out.extraText).toEqual('(10°, 10°)<br>A');
+        expect(out.color).toEqual('#1f77b4');
+    });
+
+    it('should generate hover label info (lon > 180 case)', function() {
+        var xval = 301;
+        var yval = 11;
+        var out = hoverPoints(getPointData(gd), xval, yval)[0];
+
+        expect(out.index).toEqual(3);
+        expect([out.x0, out.x1, out.y0, out.y1]).toBeCloseToArray([
+            1122.33, 1124.33, 105.41, 107.41
+        ]);
+        expect(out.extraText).toEqual('(300°, 10°)<br>D');
         expect(out.color).toEqual('#1f77b4');
     });
 

@@ -6,7 +6,6 @@
 * LICENSE file in the root directory of this source tree.
 */
 
-
 'use strict';
 
 var isNumeric = require('fast-isnumeric');
@@ -24,18 +23,18 @@ var convertTextOpts = require('../../plots/mapbox/convert_text_opts');
 module.exports = function convert(calcTrace) {
     var trace = calcTrace[0].trace;
 
-    var isVisible = (trace.visible === true),
-        hasFill = (trace.fill !== 'none'),
-        hasLines = subTypes.hasLines(trace),
-        hasMarkers = subTypes.hasMarkers(trace),
-        hasText = subTypes.hasText(trace),
-        hasCircles = (hasMarkers && trace.marker.symbol === 'circle'),
-        hasSymbols = (hasMarkers && trace.marker.symbol !== 'circle');
+    var isVisible = (trace.visible === true);
+    var hasFill = (trace.fill !== 'none');
+    var hasLines = subTypes.hasLines(trace);
+    var hasMarkers = subTypes.hasMarkers(trace);
+    var hasText = subTypes.hasText(trace);
+    var hasCircles = (hasMarkers && trace.marker.symbol === 'circle');
+    var hasSymbols = (hasMarkers && trace.marker.symbol !== 'circle');
 
-    var fill = initContainer(),
-        line = initContainer(),
-        circle = initContainer(),
-        symbol = initContainer();
+    var fill = initContainer();
+    var line = initContainer();
+    var circle = initContainer();
+    var symbol = initContainer();
 
     var opts = {
         fill: fill,
@@ -173,8 +172,9 @@ function makeCircleOpts(calcTrace) {
 
     var opacityFn;
     if(arrayOpacity) {
-        opacityFn = function(o) {
-            return addTraceOpacity(isNumeric(o) ? +Lib.constrain(o, 0, 1) : 0);
+        opacityFn = function(mo) {
+            var mo2 = isNumeric(mo) ? +Lib.constrain(mo, 0, 1) : 0;
+            return addTraceOpacity(mo2);
         };
     }
 
@@ -188,7 +188,7 @@ function makeCircleOpts(calcTrace) {
         var props = {};
         if(colorFn) props.mcc = calcPt.mcc = colorFn(calcPt.mc);
         if(sizeFn) props.mrc = calcPt.mrc = sizeFn(calcPt.ms);
-        if(opacityFn) props.mo = opacityFn(calcPt);
+        if(opacityFn) props.mo = opacityFn(calcPt.mo);
         if(selectedpoints) props.selected = calcPt.selected;
 
         features.push({
