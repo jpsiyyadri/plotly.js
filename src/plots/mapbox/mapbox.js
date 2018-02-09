@@ -164,6 +164,9 @@ proto.createMap = function(calcData, fullLayout, resolve, reject) {
 
         // some hackery to get Fx.hover to work
 
+    
+        // TODO not working in 0.44.0 !!!
+
         evt.clientX = evt.point.x + bb.left;
         evt.clientY = evt.point.y + bb.top;
 
